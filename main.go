@@ -105,8 +105,8 @@ func main() {
 		},
 		Commands: []*cli.Command{
 			{
-				Name:    "of",
-				Usage:   "List the work items assigned to a user",
+				Name:  "of",
+				Usage: "List the work items assigned to a user",
 				Action: func(c *cli.Context) error {
 					name := c.Args().First()
 					ListWorkItems(name)
@@ -120,5 +120,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-
-
