@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -71,7 +72,6 @@ func ListMyWorkItems() {
 }
 
 func main() {
-
 	app := &cli.App{
 		Name:  "mywork",
 		Usage: "List the work items assigned to me",
@@ -84,8 +84,8 @@ func main() {
 				Name:  "of",
 				Usage: "List the work items assigned to a user",
 				Action: func(c *cli.Context) error {
-					name := c.Args().First()
-					ListWorkItems(name)
+					name := c.Args().Slice()
+					ListWorkItems(strings.Join(name, " "))
 					return nil
 				},
 			},
