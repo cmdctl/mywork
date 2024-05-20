@@ -60,13 +60,13 @@ func display(cmd *exec.Cmd) {
 }
 
 func ListWorkItems(name string) {
-	const query = `az boards query --wiql "SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.AssignedTo] = '%s' AND [System.State] <> 'Done' AND [System.State] <> 'Resolved' AND [System.State] <> 'Closed' AND [System.State] <> 'Removed'"`
+	const query = `az boards query --wiql "SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.AssignedTo] = '%s' AND [System.State] <> 'Done' AND [System.State] <> 'Resolved' AND [System.State] <> 'Closed' AND [System.State] <> 'Removed' AND [System.State] <> 'Design'"`
 	cmd := exec.Command("bash", "-c", fmt.Sprintf(query, name))
 	display(cmd)
 }
 
 func ListMyWorkItems() {
-	const query = `az boards query --wiql "SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.AssignedTo] = @Me AND [System.State] <> 'Done' AND [System.State] <> 'Resolved' AND [System.State] <> 'Closed' AND [System.State] <> 'Removed'"`
+	const query = `az boards query --wiql "SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.AssignedTo] = @Me AND [System.State] <> 'Done' AND [System.State] <> 'Resolved' AND [System.State] <> 'Closed' AND [System.State] <> 'Removed' AND [System.State] <> 'Design'"`
 	cmd := exec.Command("bash", "-c", query)
 	display(cmd)
 }
