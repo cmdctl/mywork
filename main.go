@@ -37,11 +37,19 @@ func display(cmd *exec.Cmd) {
 		log.Println("could not get command output")
 		log.Fatal(err)
 	}
+
+  if (len(output) == 0) {
+    fmt.Println("No work items found")
+    return
+  }
+
 	err = json.Unmarshal(output, &workItems)
 	if err != nil {
 		log.Println("could not unmarshal json")
+    log.Println(string(output))
 		log.Fatal(err)
 	}
+
 	var longestTitle int
 	for _, workItem := range workItems {
 		if len(workItem.Fields.SystemTitle) > longestTitle {
