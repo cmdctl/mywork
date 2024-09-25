@@ -11,6 +11,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const titleLimit = 120
+
 type AzureWorkItems []struct {
 	CommentVersionRef CommentVersionRef `json:"commentVersionRef,omitempty"`
 	Fields            Fields            `json:"fields"`
@@ -30,6 +32,13 @@ type Fields struct {
 	SystemTitle string `json:"System.Title"`
 }
 
+func truncateString(s string, length int) string {
+	if len(s) > length {
+		return s[:length] + "..."
+	}
+	return s
+}
+
 func display(cmd *exec.Cmd) {
 	var workItems AzureWorkItems
 	output, err := cmd.Output()
@@ -38,28 +47,30 @@ func display(cmd *exec.Cmd) {
 		log.Fatal(err)
 	}
 
-  if (len(output) == 0) {
-    fmt.Println("No work items found")
-    return
-  }
+	if len(output) == 0 {
+		fmt.Println("No work items found")
+		return
+	}
 
 	err = json.Unmarshal(output, &workItems)
 	if err != nil {
 		log.Println("could not unmarshal json")
-    log.Println(string(output))
+		log.Println(string(output))
 		log.Fatal(err)
 	}
 
 	var longestTitle int
 	for _, workItem := range workItems {
-		if len(workItem.Fields.SystemTitle) > longestTitle {
-			longestTitle = len(workItem.Fields.SystemTitle)
+		title := truncateString(workItem.Fields.SystemTitle, titleLimit)
+		if len(title) > longestTitle {
+			longestTitle = len(title)
 		}
 	}
 
 	for _, workItem := range workItems {
-		padding := longestTitle - len(workItem.Fields.SystemTitle)
-		fmt.Printf("%d | %s", workItem.Fields.SystemID, workItem.Fields.SystemTitle)
+		title := truncateString(workItem.Fields.SystemTitle, titleLimit)
+		padding := longestTitle - len(title)
+		fmt.Printf("%d | %s", workItem.Fields.SystemID, title)
 		for i := 0; i < padding; i++ {
 			fmt.Print(" ")
 		}
