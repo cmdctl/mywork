@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"sort"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -59,6 +60,14 @@ func display(cmd *exec.Cmd) {
 		log.Fatal(err)
 	}
 
+  // Sort by state rank
+	sort.Slice(workItems, func(i, j int) bool {
+    state1 := SystemState(workItems[i].Fields.SystemState )
+    state2 := SystemState(workItems[j].Fields.SystemState )
+		return state1.rank < state2.rank
+	})
+
+  // find space padding for the title column
 	var longestTitle int
 	for _, workItem := range workItems {
 		title := truncateString(workItem.Fields.SystemTitle, titleLimit)
@@ -67,6 +76,7 @@ func display(cmd *exec.Cmd) {
 		}
 	}
 
+  // Print to console
 	for _, workItem := range workItems {
 		title := truncateString(workItem.Fields.SystemTitle, titleLimit)
 		padding := longestTitle - len(title)
@@ -74,8 +84,55 @@ func display(cmd *exec.Cmd) {
 		for i := 0; i < padding; i++ {
 			fmt.Print(" ")
 		}
-		fmt.Printf(" | %s\n", workItem.Fields.SystemState)
+    state := SystemState(workItem.Fields.SystemState)
+		fmt.Printf(" | %s\n", state)
 	}
+}
+
+type Rank uint
+const (
+  RankNew Rank = iota + 1
+  RankTodo
+  RankInProgress
+  RankInReview
+  RankReadyForTesting
+  RankInTesting
+  RankBusinessAcceptance
+  RankReadyForDeployment
+)
+
+type State struct {
+  name string
+  rank Rank
+}
+
+func (s State) String() string {
+  return s.name
+}
+
+func SystemState(azState string) State {
+  state := &State{
+    name: azState,
+  }
+  switch azState {
+  case "New":
+    state.rank = RankNew
+  case "To Do":
+    state.rank = RankTodo
+  case "In Progress":
+    state.rank = RankInProgress
+  case "In Review":
+    state.rank = RankInReview
+  case "Ready For Testing":
+    state.rank = RankReadyForTesting
+  case "In Testing":
+    state.rank = RankInTesting
+  case "Business Acceptance":
+    state.rank = RankBusinessAcceptance
+  case "Ready For Deployment":
+    state.rank = RankReadyForDeployment
+  }
+  return *state
 }
 
 func ListWorkItems(name string) {
